@@ -23,9 +23,6 @@ type mutexValue struct {
 func (m mutexValue) String() string {
 	return fmt.Sprintf("%s:%d", m.file, m.line)
 }
-func (m mutexValue) ID(key Key) string {
-	return key.ID()
-}
 
 var threadLocal routine.ThreadLocal = routine.NewThreadLocalWithInitial(func() any { return map[Key]mutexValue{} })
 
@@ -98,10 +95,10 @@ func checkMutex(state map[Key]mutexValue, add Key, v mutexValue) Key {
 
 	aid := add.ID()
 
-	for k, v := range state {
-		vid := v.ID(k)
-		slog.Info("adding", "src", vid, "dst", aid)
-		err := locks.AddEdge(vid, aid)
+	for k := range state {
+		kid := k.ID()
+		slog.Debug("adding", "src", kid, "dst", aid)
+		err := locks.AddEdge(kid, aid)
 		if err != nil {
 			switch err.(type) {
 			case dag.SrcDstEqualError:

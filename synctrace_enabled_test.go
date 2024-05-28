@@ -35,46 +35,6 @@ func TestLockOrderConsistent(t *testing.T) {
 	a.Unlock()
 }
 
-func TestRLockOrder(t *testing.T) {
-	var a = RWMutex{Name: "a"}
-	var b = RWMutex{Name: "b"}
-
-	a.RLock()
-	b.RLock()
-	b.RUnlock()
-	a.RUnlock()
-
-	b.RLock()
-	a.RLock()
-	a.RLock()
-	b.RUnlock()
-}
-
-func TestRLockOrderBad(t *testing.T) {
-	var a = RWMutex{Name: "a"}
-	var b = RWMutex{Name: "b"}
-
-	a.RLock()
-	b.RLock()
-	b.RUnlock()
-	a.RUnlock()
-
-	b.RLock()
-	a.RLock()
-	a.RUnlock()
-	b.RUnlock()
-
-	a.Lock()
-	b.RLock()
-	b.RUnlock()
-	a.Unlock()
-
-	b.Lock()
-	a.RLock()
-	a.RUnlock()
-	b.Unlock()
-}
-
 func TestLockOrderReentrant(t *testing.T) {
 	var a = Mutex{Name: "a"}
 

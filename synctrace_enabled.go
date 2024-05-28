@@ -15,32 +15,21 @@ import (
 
 type Key = dag.IDInterface
 
-type readKey struct {
-	id string
-	v  mutexValue
-}
-
 type mutexValue struct {
-	file     string
-	line     int
-	readOnly bool
+	file string
+	line int
 }
 
 func (m mutexValue) String() string {
 	return fmt.Sprintf("%s:%d", m.file, m.line)
 }
 func (m mutexValue) ID(key Key) string {
-	if m.readOnly {
-		return fmt.Sprintf("%s:read:%s", key.ID(), m)
-	} else {
-		return key.ID()
-	}
+	return key.ID()
 }
 
 var threadLocal routine.ThreadLocal = routine.NewThreadLocalWithInitial(func() any { return map[Key]mutexValue{} })
 
 var locks = dag.NewDAG()
-var readLocks = map[Key][]readKey{}
 
 func NewRWMutex(name string) RWMutex {
 	return RWMutex{Name: name}
@@ -92,14 +81,6 @@ func (m *Mutex) String() string {
 	return m.ID()
 }
 
-func (m *readKey) ID() string {
-	return fmt.Sprintf("%s:%s", m.id, m.v)
-}
-
-func (m *readKey) String() string {
-	return m.ID()
-}
-
 func alertMutex(err error) {
 	panic(err)
 }
@@ -116,37 +97,6 @@ func checkMutex(state map[Key]mutexValue, add Key, v mutexValue) Key {
 	}
 
 	aid := add.ID()
-
-	if _, ok := add.(*RWMutex); ok {
-		if v.readOnly {
-			// use a non-unique key
-			radd := readKey{id: add.ID(), v: v}
-			readLocks[add] = append(readLocks[add], radd)
-			raid := v.ID(add)
-
-			err := locks.AddVertexByID(raid, radd)
-			if err != nil {
-				switch err.(type) {
-				case dag.VertexDuplicateError:
-					// ignore
-				default:
-					panic(err)
-				}
-			}
-			err = locks.AddEdge(aid, raid)
-			if err != nil {
-				switch err.(type) {
-				case dag.EdgeLoopError:
-					alertMutex(fmt.Errorf("grabbing read-lock %s but already have these locks: %v. Would cause a DAG loop", raid, state))
-				case dag.EdgeDuplicateError:
-					// ignore
-				default:
-					panic(err)
-				}
-			}
-			aid = raid
-		}
-	}
 
 	for k, v := range state {
 		vid := v.ID(k)
@@ -194,7 +144,6 @@ func (s *RWMutex) RLock() {
 	var key Key = s
 	m := threadLocal.Get().(map[Key]mutexValue)
 	v := newMutexValue()
-	v.readOnly = true
 	checkMutex(m, key, v)
 	m[key] = v
 	s.RWMutex.RLock()

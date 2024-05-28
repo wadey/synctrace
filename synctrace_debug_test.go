@@ -1,5 +1,5 @@
-//go:build mutex_debug
-// +build mutex_debug
+//go:build synctrace
+// +build synctrace
 
 package synctrace
 

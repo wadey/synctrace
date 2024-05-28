@@ -1,5 +1,5 @@
-//go:build mutex_debug
-// +build mutex_debug
+//go:build synctrace
+// +build synctrace
 
 package synctrace
 
@@ -223,5 +223,20 @@ func (s *Mutex) Unlock() {
 	s.Mutex.Unlock()
 }
 
-func ChanDebugRecv(key Key) {}
-func ChanDebugSend(key Key) {}
+func ChanDebugRecvStart(key Key) {
+	m := threadLocal.Get().(map[Key]mutexValue)
+	v := newMutexValue()
+	checkMutex(m, key, v)
+	m[key] = v
+}
+
+func ChanDebugRecvFinished(key Key) {
+	m := threadLocal.Get().(map[Key]mutexValue)
+	delete(m, key)
+}
+
+func ChanDebugSend(key Key) {
+	m := threadLocal.Get().(map[Key]mutexValue)
+	v := newMutexValue()
+	checkMutex(m, key, v)
+}

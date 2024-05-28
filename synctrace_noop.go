@@ -1,5 +1,5 @@
-//go:build !mutex_debug
-// +build !mutex_debug
+//go:build !synctrace
+// +build !synctrace
 
 package synctrace
 
@@ -18,5 +18,6 @@ func NewMutex(Key) sync.Mutex {
 	return sync.Mutex{}
 }
 
-func ChanDebugRecv(key Key) {}
-func ChanDebugSend(key Key) {}
+func ChanDebugRecvStart(key Key)    {}
+func ChanDebugRecvFinished(key Key) {}
+func ChanDebugSend(key Key)         {}

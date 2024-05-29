@@ -15,6 +15,12 @@ import (
 
 type Key = dag.IDInterface
 
+type stringKey string
+
+func (s stringKey) ID() string {
+	return string(s)
+}
+
 type mutexValue struct {
 	file string
 	line int
@@ -51,7 +57,8 @@ type Mutex struct {
 func (m *RWMutex) ID() string {
 	if m.id == "" {
 		if m.Name != "" {
-			m.id = fmt.Sprintf("%s (%p)", m.Name, m)
+			m.id = m.Name
+			// m.id = fmt.Sprintf("%s (%p)", m.Name, m)
 		} else {
 			m.id = fmt.Sprintf("%p", m)
 		}
@@ -66,7 +73,8 @@ func (m *RWMutex) String() string {
 func (m *Mutex) ID() string {
 	if m.id == "" {
 		if m.Name != "" {
-			m.id = fmt.Sprintf("%s (%p)", m.Name, m)
+			// m.id = fmt.Sprintf("%s (%p)", m.Name, m)
+			m.id = m.Name
 		} else {
 			m.id = fmt.Sprintf("%p", m)
 		}
@@ -169,19 +177,22 @@ func (s *Mutex) Unlock() {
 	s.Mutex.Unlock()
 }
 
-func ChanDebugRecvStart(key Key) {
+func ChanDebugRecvLock(name string) {
+	key := stringKey(name)
 	m := threadLocal.Get().(map[Key]mutexValue)
 	v := newMutexValue()
 	checkMutex(m, key, v)
 	m[key] = v
 }
 
-func ChanDebugRecvFinished(key Key) {
+func ChanDebugRecvUnlock(name string) {
+	key := stringKey(name)
 	m := threadLocal.Get().(map[Key]mutexValue)
 	delete(m, key)
 }
 
-func ChanDebugSend(key Key) {
+func ChanDebugSend(name string) {
+	key := stringKey(name)
 	m := threadLocal.Get().(map[Key]mutexValue)
 	v := newMutexValue()
 	checkMutex(m, key, v)

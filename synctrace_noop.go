@@ -18,6 +18,6 @@ func NewMutex(Key) sync.Mutex {
 	return sync.Mutex{}
 }
 
-func ChanDebugRecvStart(key Key)    {}
-func ChanDebugRecvFinished(key Key) {}
-func ChanDebugSend(key Key)         {}
+func ChanDebugRecvLock(name string)   {}
+func ChanDebugRecvUnlock(name string) {}
+func ChanDebugSend(name string)       {}

@@ -60,6 +60,7 @@ func (m *RWMutex) ID() string {
 			m.id = m.Name
 			// m.id = fmt.Sprintf("%s (%p)", m.Name, m)
 		} else {
+			panic("no name")
 			m.id = fmt.Sprintf("%p", m)
 		}
 	}
@@ -76,6 +77,7 @@ func (m *Mutex) ID() string {
 			// m.id = fmt.Sprintf("%s (%p)", m.Name, m)
 			m.id = m.Name
 		} else {
+			panic("no name")
 			m.id = fmt.Sprintf("%p", m)
 		}
 	}

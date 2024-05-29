@@ -7,15 +7,15 @@ import "sync"
 
 type Key = string
 
-// type syncRWMutex = sync.RWMutex
-// type syncMutex = sync.Mutex
+type RWMutex = sync.RWMutex
+type Mutex = sync.Mutex
 
-func NewRWMutex(Key) sync.RWMutex {
-	return sync.RWMutex{}
+func NewRWMutex(Key) RWMutex {
+	return RWMutex{}
 }
 
-func NewMutex(Key) sync.Mutex {
-	return sync.Mutex{}
+func NewMutex(Key) Mutex {
+	return Mutex{}
 }
 
 func ChanDebugRecvLock(name string)   {}

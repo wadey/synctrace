@@ -94,7 +94,7 @@ func checkMutex(state map[Key]mutexValue, add Key, v mutexValue) Key {
 	_, err := locks.AddVertex(add)
 	if err != nil {
 		switch err.(type) {
-		case dag.VertexDuplicateError:
+		case dag.VertexDuplicateError, dag.IDDuplicateError:
 			// ignore
 		default:
 			panic(err)

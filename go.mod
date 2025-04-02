@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/heimdalr/dag v1.4.0
-	github.com/timandy/routine v1.1.1
+	github.com/timandy/routine v1.1.5
 )
 
 require (

@@ -30,7 +30,7 @@ func (m mutexValue) String() string {
 	return fmt.Sprintf("%s:%d", m.file, m.line)
 }
 
-var threadLocal routine.ThreadLocal = routine.NewThreadLocalWithInitial(func() any { return map[Key]mutexValue{} })
+var threadLocal = routine.NewThreadLocalWithInitial(func() map[Key]mutexValue { return map[Key]mutexValue{} })
 
 var locks = dag.NewDAG()
 
@@ -133,7 +133,7 @@ func newMutexValue() (v mutexValue) {
 
 func (s *RWMutex) Lock() {
 	var key Key = s
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	v := newMutexValue()
 	checkMutex(m, key, v)
 	m[key] = v
@@ -142,14 +142,14 @@ func (s *RWMutex) Lock() {
 
 func (s *RWMutex) Unlock() {
 	var key Key = s
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	delete(m, key)
 	s.RWMutex.Unlock()
 }
 
 func (s *RWMutex) RLock() {
 	var key Key = s
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	v := newMutexValue()
 	checkMutex(m, key, v)
 	m[key] = v
@@ -158,14 +158,14 @@ func (s *RWMutex) RLock() {
 
 func (s *RWMutex) RUnlock() {
 	var key Key = s
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	delete(m, key)
 	s.RWMutex.RUnlock()
 }
 
 func (s *Mutex) Lock() {
 	var key Key = s
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	v := newMutexValue()
 	checkMutex(m, key, v)
 	m[key] = v
@@ -174,14 +174,14 @@ func (s *Mutex) Lock() {
 
 func (s *Mutex) Unlock() {
 	var key Key = s
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	delete(m, key)
 	s.Mutex.Unlock()
 }
 
 func ChanDebugRecvLock(name string) {
 	key := stringKey(name)
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	v := newMutexValue()
 	checkMutex(m, key, v)
 	m[key] = v
@@ -189,13 +189,13 @@ func ChanDebugRecvLock(name string) {
 
 func ChanDebugRecvUnlock(name string) {
 	key := stringKey(name)
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	delete(m, key)
 }
 
 func ChanDebugSend(name string) {
 	key := stringKey(name)
-	m := threadLocal.Get().(map[Key]mutexValue)
+	m := threadLocal.Get()
 	v := newMutexValue()
 	checkMutex(m, key, v)
 }
